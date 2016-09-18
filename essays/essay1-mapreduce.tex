@@ -1,0 +1,45 @@
+\documentclass[12pt,a4paper,titlepage]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{setspace}
+\usepackage{parskip}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage[top=1in, bottom=1in, left=1in, right=1in]{geometry}
+\usepackage{float}
+\usepackage[section]{placeins}
+
+\usepackage{hyperref} % lisääthän omat pakettisi ENNEN hyperref'iä
+\hypersetup{pdfborder={0 0 0}}
+\onehalfspacing
+\cfoot{}
+\rhead{\thepage}
+% asettaa nyk. kappaleen nimen vasempaan ylänurkkaan, saa poistaa jos haluaa
+\lhead{\leftmark}
+
+%%%%% kaikki ennen tätä liittyy käytettäviin paketteihin tai dokumentin muotoiluun. siihen ei tarvinne aluksi koskea. %%%%%
+
+%%%%% kansilehti %%%%%
+\title{Distsys Essay 1 \\ MapReduce \vspace{0.5em}}
+\author{Kalle V.M. Viiri}
+\date{\today}
+\begin{document}
+
+\setcounter{page}{1}
+\parskip=1em \advance\parskip by 0pt plus 2pt
+\pagestyle{fancy}
+
+\maketitle
+
+MapReduce\cite{mapreduce} is a model of programming designed by Google to ease the task of distribution and parallelization on large cluster environments. The method is based on two higher-order functions commonly encountered in functional programming, Map and Reduce, although their usage is slightly different from the usual.
+
+With MapReduce, computations are expressed as applications of the two functions, Map and Reduce. Map accepts a key-value pair as input, applies the desired operation on them and outputs a list of intermediate key-value pairs. Reduce accepts such lists of key-value -pairs, performs the desired operation on them, and outputs a single result that is also the ultimate output of the MapReduce computation.
+
+To distributedly compute MapReduce, input data is partitioned into sets to be processed in parallel by different machines. One of the processing machines is assigned to be the master. The master in turn assigns waiting Map and Reduce tasks to idle machines. Every machine maintains contact with the master by periodical pings to ensure that tasks interrupted by failures can be rescheduled.
+
+Google has used MapReduce for various tasks including the indexing for Google web search. Comparing to their previous implementations, they have achieved improved fault tolerance, performance and simplicity of code. In particular, distribution with MapReduce has reduced the need for more complicated optimizations that made the program harder to understand and maintain.
+
+\bibliographystyle{plain}
+\bibliography{essay1}
+
+\end{document}
