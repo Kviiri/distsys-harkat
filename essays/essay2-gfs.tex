@@ -1,0 +1,41 @@
+\documentclass[12pt,a4paper,titlepage]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{setspace}
+\usepackage{parskip}
+\usepackage{graphicx}
+\usepackage[top=1in, bottom=1in, left=1in, right=1in]{geometry}
+\usepackage{float}
+\usepackage[section]{placeins}
+
+\usepackage{hyperref} % lisääthän omat pakettisi ENNEN hyperref'iä
+\hypersetup{pdfborder={0 0 0}}
+\onehalfspacing
+
+%%%%% kaikki ennen tätä liittyy käytettäviin paketteihin tai dokumentin muotoiluun. siihen ei tarvinne aluksi koskea. %%%%%
+
+%%%%% kansilehti %%%%%
+\title{Distsys Essay 2 \\ Google File System \vspace{0.5em}}
+\author{Kalle V.M. Viiri}
+\date{\today}
+\begin{document}
+
+\setcounter{page}{1}
+\parskip=1em \advance\parskip by 0pt plus 2pt
+
+\maketitle
+
+Google File System (GFS)\cite{GFS} is a distributed, fault-tolerant file system designed for Google. It is designed for reliable large-scale data storage.
+
+A cluster running GFS consists of a single master server and several chunkservers, and is accessed through a specialized GFS client. When data is received, the master splits it into fixed-size chunks and hands it over for chunkservers to store. The same data chunk is typically assigned to several chunkservers to avoid losing data on hardware failure. Each chunkserver keeps a local storage of chunks received, while the master maintains metadata, including current locations of each chunk.
+
+GFS is designed for high reliability~\cite{GFS}. Both the chunkservers and the master will automatically restart automatically upon failure. The risk of data loss is mitigated through the use of chunk replication. The state of the master server is also replicated periodically and stored on multiple machines so operation can be restored smoothly after failure.
+
+GFS is designed to handle files that are (by 2003 standards) huge~\cite{GFS}. File access is made efficient and safe by minimizing random writes to files. To prevent concurrent writes from corrupting file chunks, GFS offers a special record append mode that performs an atomic write operation. File deletion is performed by marking files as hidden, after which they're eventually picked up by a lazy garbage collector mechanism.
+
+
+
+\bibliographystyle{plain}
+\bibliography{essay2}
+
+\end{document}
