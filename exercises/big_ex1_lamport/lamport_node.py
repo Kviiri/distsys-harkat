@@ -117,11 +117,10 @@ else:
 
 def start():
     for i in range(1, 100):
-        if(rng.randint(0, 1) == 0):
+        if(rng.randint(0, 1) == 0) or not outports:
             localEvent()
         else:
             sendMessage()
-    active = False   
 
 def localEvent():
     increment = rng.randint(1,5)
@@ -134,18 +133,26 @@ def localEvent():
     printLock.release()
 
 def sendMessage():
-    target = rng.choice(outports.keys())
+    global clock
+    target = rng.choice(outports.keys()) 
+    clockLock.acquire()
+    clock += 1
     message = id + ":" + str(clock)
     outbox.sendto(message, (("localhost", outports[target])))
     printLock.acquire()
     print "s " + target + " " + str(clock)
     printLock.release()
+    clockLock.release()
 
 def startReceiving():
     while(active):
         try:
             msg = inbox.recv(128).split(":")
         except socket.timeout:
+            continue
+        if msg[0] == "SIGNOFF":
+            del outports[msg[1]]
+            print "DELETED PORT " + msg[1]
             continue
         sender = msg[0]
         global clock
@@ -163,3 +170,6 @@ receiverThread = threading.Thread(target = startReceiving)
 receiverThread.start()
 start()
 active = False
+for port in outports.values():
+    print "SHUT UP " + str(port)
+    outbox.sendto("SIGNOFF:" + id, ("localhost", port))
