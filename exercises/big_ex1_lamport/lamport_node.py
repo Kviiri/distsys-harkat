@@ -1,3 +1,8 @@
+#Lamport clock node program
+#Distsys Assignment 1
+#Kalle Viiri / 013864453
+
+
 import socket
 import sys
 import random as rng
