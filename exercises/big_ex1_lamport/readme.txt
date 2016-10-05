@@ -24,3 +24,7 @@ IMPLEMENTATION
 Each node has two datagram sockets, inbox and outbox. After reading the input file, each knows the other nodes' ports. The first node of the configuration file pings other nodes until everyone has replied, after which the first node sends everyone a START message that allows other nodes to start the main algorithm.
 
 The main algorithm is done in two threads: one processes incoming messages (normal or SIGNOFF) and the other carries out local events and sending events. Locks are in place for protecting the clock value and output from concurrency issues. When a node finishes its 100 events, it sends every other node a SIGNOFF message along with its ID. Nodes receiving a SIGNOFF message remove the associated id from the list of eligible nodes to send to. The final remaining node will perform only local events.
+
+NOTES
+
+Only tested for Python 2.7.12
