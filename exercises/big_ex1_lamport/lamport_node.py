@@ -39,13 +39,6 @@ for i in range(0, len(conflines)):
         #    connections.append((id, newSocket))
 
 
-try:
-    log = open(id + ".log", "a")
-except NameError as e:
-    print "id is not defined: " + e.strerror
-except IOError as e:
-    print "error opening log file: " + e.strerror
-
 
 #now we have the following:
 #outports contains tuples (id, port) for other nodes
@@ -128,9 +121,7 @@ def start():
             localEvent()
         else:
             sendMessage()
-    active = False
-    log.close()
-        
+    active = False   
 
 def localEvent():
     increment = rng.randint(1,5)
@@ -138,17 +129,17 @@ def localEvent():
     clockLock.acquire()
     clock += increment
     clockLock.release()
-    fileLock.acquire()
-    log.write("l " + str(increment) + "\n")
-    fileLock.release()
+    printLock.acquire()
+    print "l " + str(increment)
+    printLock.release()
 
 def sendMessage():
     target = rng.choice(outports.keys())
     message = id + ":" + str(clock)
     outbox.sendto(message, (("localhost", outports[target])))
-    fileLock.acquire()
-    log.write("s " + target + " " + str(clock) + "\n")
-    fileLock.release()
+    printLock.acquire()
+    print "s " + target + " " + str(clock)
+    printLock.release()
 
 def startReceiving():
     while(active):
@@ -161,15 +152,14 @@ def startReceiving():
         clockLock.acquire()
         clock = max(clock, int(msg[1])) + 1
         clockLock.release()
-        fileLock.acquire()
-        log.write("r " + sender + " " + msg[1] + " " + str(clock) + "\n")
-        fileLock.release()
+        printLock.acquire()
+        print "r " + sender + " " + msg[1] + " " + str(clock)
+        printLock.release()
 
-fileLock = threading.Lock()
+printLock = threading.Lock()
 clockLock = threading.Lock()
 active = True
 receiverThread = threading.Thread(target = startReceiving)
 receiverThread.start()
 start()
 active = False
-log.close()
