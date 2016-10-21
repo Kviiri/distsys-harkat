@@ -49,10 +49,30 @@ def search(searchTime):
         sock.connect(('localhost', port_number))
         #success?
         found = True
-    except:
+    except timeout:
         #no mouse here
         pass
     return found
+
+#sleeps killTime, then tries to kill mouse (MEOW)
+#if it doesn't receive reply in waitTime seconds, ends
+def destroy(killTime, waitTime):
+    time.sleep(killTime)
+    sock = socket.socket()
+    sock.settimeout(waitTime)
+    try:
+        sock.connect(('localhost', port_number))
+    except timeout:
+        return False
+    #connection formed, mouse has waitTime seconds to reply
+    try:
+        sock.send("MEOW")
+        msg = sock.recv(4)
+    except timeout:
+        return False
+    if msg == "OUCH":
+        return True
+    
 
 #helper function. Returns a socket connected to Listy cat
 def listyConnect():
