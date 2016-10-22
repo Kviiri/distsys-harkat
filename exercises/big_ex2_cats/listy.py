@@ -1,6 +1,14 @@
 import socket
 import threading
 
+def receive(cat, log):
+    msg = cat.readline()
+    if validate(msg):
+        fileLock.acquire()
+        log.write(msg + "\n")
+        fileLock.release()
+
+
 sock = socket.socket()
 
 with open("port_number", "r") as f:
@@ -16,10 +24,5 @@ with open("cmsg", "a") as log:
         threading.Thread(target = receive, args = (catSock, log)).start()
 
 
-def receive(cat, log):
-    msg = cat.readline()
-    if validate(msg):
-        fileLock.acquire()
-        log.write(msg + "\n")
-        fileLock.release()
+
 
