@@ -30,7 +30,7 @@ def destroy(killTime, waitTime):
         return False
     #connection formed, mouse has waitTime seconds to reply
     try:
-        print("MEOW", file=sock)
+        sock.send("MEOW\n")
         msg = sock.recv(4)
     except (socket.timeout, socket.error):
         return False
@@ -80,7 +80,7 @@ elif action == "A":
         #Listy must know of its passing
         sock = listyConnect()
         #sock is a file-like socket for communicating with Listy cat
-        print("G " + gethostname() + " " + name, file=sock)
+        print("G " + socket.gethostname() + " " + name, file=sock)
         sock.flush()
 
 
