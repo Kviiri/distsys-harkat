@@ -73,7 +73,7 @@ if action == "S":
         #sock is a file-like socket for communicating with Listy cat
         print("F " + socket.gethostname() + " " + name, file=sock)
         sock.flush()
-elif action == "F":
+elif action == "A":
     #off the rodent
     if destroy(6, 8):
         #mouse is dead. Rest in pieces
