@@ -45,7 +45,7 @@ def listyConnect():
         listyhost = f.readline
     #then connect to Listy
     sock = socket.socket()
-    sock.connect(('listy_location'))
+    sock.connect(('listy_location', port_number))
     sock = sock.makefile()
     return sock
 
