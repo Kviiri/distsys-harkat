@@ -4,7 +4,7 @@ import threading
 def receive(cat, log):
     msg = cat.readline()
     fileLock.acquire()
-    log.write(msg + "\n")
+    log.write(msg)
     log.flush()
     fileLock.release()
 
