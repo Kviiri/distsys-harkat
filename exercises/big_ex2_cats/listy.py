@@ -5,6 +5,7 @@ def receive(cat, log):
     msg = cat.readline()
     fileLock.acquire()
     log.write(msg + "\n")
+    log.flush()
     fileLock.release()
 
 
