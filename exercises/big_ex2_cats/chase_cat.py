@@ -30,7 +30,7 @@ def destroy(killTime, waitTime):
         return False
     #connection formed, mouse has waitTime seconds to reply
     try:
-        sock.send("MEOW")
+        print("MEOW", file=sock)
         msg = sock.recv(4)
     except (socket.timeout, socket.error):
         return False
