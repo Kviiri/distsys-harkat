@@ -4,7 +4,7 @@ import threading
 sock = socket.socket()
 
 with open("port_number", "r") as f:
-    port = int(f.readline)
+    port = int(f.readline())
 
 sock.bind(('localhost', port))
 
