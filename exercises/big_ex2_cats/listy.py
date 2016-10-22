@@ -3,10 +3,9 @@ import threading
 
 def receive(cat, log):
     msg = cat.readline()
-    if validate(msg):
-        fileLock.acquire()
-        log.write(msg + "\n")
-        fileLock.release()
+    fileLock.acquire()
+    log.write(msg + "\n")
+    fileLock.release()
 
 
 sock = socket.socket()
