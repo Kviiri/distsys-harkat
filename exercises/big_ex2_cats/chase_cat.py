@@ -1,7 +1,7 @@
+from __future__ import print_function
 import sys
 import time
 import socket
-from __future__ import print_function
 
 if len(argv) != 3:
     print ("Wrong number of arguments: " + argv)
