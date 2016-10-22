@@ -9,17 +9,17 @@ with open("port_number", "r") as f:
 sock.bind(('localhost', port))
 
 sock.listen(5)
-with open("cmesg", "a") as log:
+with open("cmsg", "a") as log:
     fileLock = Lock()
-    catSock = a.accept()[0].makefile()
-    Thread(target = receive, args = (catSock, log))
+    while True:
+        catSock = a.accept()[0].makefile()
+        Thread(target = receive, args = (catSock, log))
 
 
 def receive(cat, log):
-    while True:
-        msg = cat.readline
-        if validate(msg):
-            fileLock.acquire()
-            log.write(msg + "\n")
-            fileLock.release()
+    msg = cat.readline()
+    if validate(msg):
+        fileLock.acquire()
+        log.write(msg + "\n")
+        fileLock.release()
 
