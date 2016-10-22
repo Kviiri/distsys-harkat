@@ -42,10 +42,9 @@ def destroy(killTime, waitTime):
 def listyConnect():
 #first get Listy's location
     with open("listy_location") as f:
-        listyhost = f.readline()
+        listyhost = f.readline().rtrim()
     #then connect to Listy
-    sock = socket.socket()
-    sock.connect((listyhost, port_number))
+    sock = socket.create_connection((listyhost, port_number))
     sock = sock.makefile()
     return sock
 
@@ -72,7 +71,7 @@ if action == "S":
         #found it!
         sock = listyConnect()
         #sock is a file-like socket for communicating with Listy cat
-        print("F " + gethostname() + " " + name, file=sock)
+        print("F " + socket.gethostname() + " " + name, file=sock)
         sock.flush()
 elif action == "F":
     #off the rodent

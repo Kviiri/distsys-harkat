@@ -13,7 +13,7 @@ with open("cmsg", "a") as log:
     fileLock = threading.Lock()
     while True:
         catSock = sock.accept()[0].makefile()
-        Thread(target = receive, args = (catSock, log))
+        threading.Thread(target = receive, args = (catSock, log)).start()
 
 
 def receive(cat, log):
