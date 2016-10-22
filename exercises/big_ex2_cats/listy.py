@@ -10,9 +10,9 @@ sock.bind(('localhost', port))
 
 sock.listen(5)
 with open("cmsg", "a") as log:
-    fileLock = Lock()
+    fileLock = threading.Lock()
     while True:
-        catSock = a.accept()[0].makefile()
+        catSock = sock.accept()[0].makefile()
         Thread(target = receive, args = (catSock, log))
 
 
