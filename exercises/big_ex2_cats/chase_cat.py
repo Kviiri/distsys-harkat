@@ -42,7 +42,7 @@ def destroy(killTime, waitTime):
 def listyConnect():
 #first get Listy's location
     with open("listy_location") as f:
-        listyhost = f.readline
+        listyhost = f.readline()
     #then connect to Listy
     sock = socket.socket()
     sock.connect((listyhost, port_number))
