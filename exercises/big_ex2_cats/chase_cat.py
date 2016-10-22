@@ -13,7 +13,7 @@ def search(searchTime):
         sock.connect(('localhost', port_number))
         #success?
         found = True
-    except socket.timeout:
+    except (socket.timeout, socket.error):
         #no mouse here
         pass
     return found
@@ -32,7 +32,7 @@ def destroy(killTime, waitTime):
     try:
         sock.send("MEOW")
         msg = sock.recv(4)
-    except socket.timeout:
+    except (socket.timeout, socket.error):
         return False
     if msg == "OUCH":
         return True
