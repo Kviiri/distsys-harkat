@@ -2,16 +2,61 @@ from __future__ import print_function
 import sys
 import time
 import socket
+import exceptions
 
-if len(argv) != 3:
-    print ("Wrong number of arguments: " + argv)
-    return
+def search(searchTime):
+    time.sleep(searchTime)
+    sock = socket.socket()
+    #found is False - set it to True if connection is successful
+    found = False
+    try:
+        sock.connect(('localhost', port_number))
+        #success?
+        found = True
+    except socket.timeout:
+        #no mouse here
+        pass
+    return found
+
+#sleeps killTime, then tries to kill mouse (MEOW)
+#if it doesn't receive reply in waitTime seconds, ends
+def destroy(killTime, waitTime):
+    time.sleep(killTime)
+    sock = socket.socket()
+    sock.settimeout(waitTime)
+    try:
+        sock.connect(('localhost', port_number))
+    except socket.timeout:
+        return False
+    #connection formed, mouse has waitTime seconds to reply
+    try:
+        sock.send("MEOW")
+        msg = sock.recv(4)
+    except socket.timeout:
+        return False
+    if msg == "OUCH":
+        return True
+    
+
+#helper function. Returns a socket connected to Listy cat
+def listyConnect():
+#first get Listy's location
+    with open("listy_location") as f:
+        listyhost = f.readline
+    #then connect to Listy
+    sock = socket()
+    sock.connect(('listy_location'))
+    sock = sock.makefile()
+    return sock
+
+if len(sys.argv) != 3:
+    raise RuntimeError("Wrong number of arguments: " + " ".join(sys.argv))
 
 #either S or A
-action = argv[1]
+action = sys.argv[1]
 
 #our name!
-name = argv[2]
+name = sys.argv[2]
 
 #we also need the port number
 with open("port_number") as f:
@@ -19,8 +64,7 @@ with open("port_number") as f:
 
 
 if name != "Jazzy" and name != "Catty":
-    print ("I'm a stray cat! (name must be Jazzy or Catty)")
-    return
+    raise RuntimeError("I'm a stray cat! (name must be Jazzy or Catty)")
 
 if action == "S":
     #search the node
@@ -40,47 +84,4 @@ elif action == "F":
         print("G " + gethostname() + " " + name, file=sock)
         sock.flush()
 
-def search(searchTime):
-    time.sleep(searchTime)
-    sock = socket.socket()
-    #found is False - set it to True if connection is successful
-    found = False
-    try:
-        sock.connect(('localhost', port_number))
-        #success?
-        found = True
-    except timeout:
-        #no mouse here
-        pass
-    return found
 
-#sleeps killTime, then tries to kill mouse (MEOW)
-#if it doesn't receive reply in waitTime seconds, ends
-def destroy(killTime, waitTime):
-    time.sleep(killTime)
-    sock = socket.socket()
-    sock.settimeout(waitTime)
-    try:
-        sock.connect(('localhost', port_number))
-    except timeout:
-        return False
-    #connection formed, mouse has waitTime seconds to reply
-    try:
-        sock.send("MEOW")
-        msg = sock.recv(4)
-    except timeout:
-        return False
-    if msg == "OUCH":
-        return True
-    
-
-#helper function. Returns a socket connected to Listy cat
-def listyConnect():
-#first get Listy's location
-    with open("listy_location") as f:
-        listyhost = f.readline
-    #then connect to Listy
-    sock = socket()
-    sock.connect(('listy_location'))
-    sock = sock.makefile()
-    return sock
