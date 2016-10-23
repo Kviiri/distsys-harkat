@@ -67,11 +67,11 @@ cattyFound = threading.Event()
 
 #start the mouse
 threading.Thread(target = subprocess.call,
-        args = (["ssh", random.choice(ukkonodes), "python mouse.py"]))
+        args = (["ssh", random.choice(ukkonodes), "python mouse.py"])).start()
 
 #start Listy cat
 threading.Thread(target = subprocess.call,
-        args = (["ssh", listyhost, "python listy.py"]))
+        args = (["ssh", listyhost, "python listy.py"])).start()
 
 #start the logwatch
 threading.Thread(target = logwatch, args = ("cmsg", 0.2)).start()
