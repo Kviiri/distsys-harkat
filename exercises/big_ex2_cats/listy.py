@@ -7,6 +7,9 @@ def receive(cat, log):
     log.write(msg)
     log.flush()
     fileLock.release()
+    #end after the mouse is a confirmed kill
+    return msg.split()[0] == 'G'
+
 
 
 sock = socket.socket()
@@ -21,8 +24,8 @@ with open("cmsg", "a") as log:
     fileLock = threading.Lock()
     while True:
         catSock = sock.accept()[0].makefile()
-        threading.Thread(target = receive, args = (catSock, log)).start()
-
-
-
-
+        #using sequential code instead or parallel
+        #traffic is bounded to three messages total anyway
+        #threading.Thread(target = receive, args = (catSock, log)).start()
+        if receive(catSock, log):
+            return
