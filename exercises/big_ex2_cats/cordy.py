@@ -1,6 +1,7 @@
 import subprocess
 import exceptions
 import threading
+import random
 import time
 
 
@@ -9,6 +10,7 @@ import time
 #sets mouse location, Jazzy & Catty found status
 #ends when mouse is killed
 def logwatch(log, delay):
+    global mouseLocation
     with open(log, "r") as f:
         while True:
             line = f.readline().rstrip()
@@ -27,6 +29,7 @@ def logwatch(log, delay):
                     break
 
 def hunt(nodes, name):
+    global mouseLocation
     while True:
         #no need to hunt if this cat has already found the mouse
         if ((name == 'Jazzy' and jazzyFound.isSet())
@@ -51,6 +54,8 @@ with open("listy_location") as f:
 
 if listyhost in ukkonodes:
     raise RuntimeError("listy host must not be in the ukkonodes list")
+
+mouseLocation = None
 
 #threading events for Jazzy and Catty having found the mouse
 jazzyFound = threading.Event()
