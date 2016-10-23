@@ -24,7 +24,7 @@ def logwatch(log, delay):
                         jazzyFound.set()
                     elif msg[2] == 'Catty':
                         cattyFound.set()
-                elif msg[0] == 'A':
+                elif msg[0] == 'G':
                     #mouse is dead, feel free to exit
                     break
             else:

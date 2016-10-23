@@ -14,7 +14,6 @@ while True:
     reply = replysock.makefile()
     #message format:
     msg = reply.readline().rstrip()
-    print msg
     if msg == "MEOW":
         #oh dear, we got caught
         reply.write("OUCH\n")
