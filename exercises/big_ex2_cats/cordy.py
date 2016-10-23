@@ -42,11 +42,11 @@ def hunt(nodes, name):
             return
         #if mouse's location is known, go there instead of popping, then return
         if mouseLocation is not None:
-            subprocess.call(["ssh", "-o", "StrictHostChecking=no", mouseLocation, "python chase_cat.py S " + name])
+            subprocess.call(["ssh", "-o", "StrictHostKeyChecking=no", mouseLocation, "python chase_cat.py S " + name])
             return
         #pop is thread safe, so no lock needed
         target = ukkonodes.pop()
-        subprocess.call(["ssh", "-o", "StrictHostChecking=no", target, "python chase_cat.py S " + name])
+        subprocess.call(["ssh", "-o", "StrictHostKeyChecking=no", target, "python chase_cat.py S " + name])
 
 with open("ukkonodes") as f:
     ukkonodes = f.read().splitlines()
@@ -69,11 +69,11 @@ cattyFound = threading.Event()
 
 #start the mouse
 threading.Thread(target = subprocess.call,
-        args = (["ssh", "-o", "StrictHostChecking=no", random.choice(ukkonodes), "python mouse.py"])).start()
+        args = (["ssh", "-o", "StrictHostKeyChecking=no", random.choice(ukkonodes), "python mouse.py"])).start()
 
 #start Listy cat
 threading.Thread(target = subprocess.call,
-        args = (["ssh", "-o", "StrictHostChecking=no", listyhost, "python listy.py"])).start()
+        args = (["ssh", "-o", "StrictHostKeyChecking=no", listyhost, "python listy.py"])).start()
 
 #start the logwatch
 threading.Thread(target = logwatch, args = ("cmsg", 0.2)).start()
@@ -83,4 +83,4 @@ threading.Thread(target = hunt, args = (ukkonodes, 'Catty')).start()
 jazzyFound.wait()
 cattyFound.wait()
 #at this point, all that remains is sniping the mouse
-subprocess.call(["ssh", "-o", "StrictHostChecking=no", mouseLocation, "python chase_cat.py A Jazzy"])
+subprocess.call(["ssh", "-o", "StrictHostKeyChecking=no", mouseLocation, "python chase_cat.py A Jazzy"])
