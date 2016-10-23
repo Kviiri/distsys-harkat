@@ -1,7 +1,8 @@
 import sys
 import socket
 
-port = int(sys.argv[1])
+with open("port_number", "r") as f:
+    port = int(f.readline().rstrip())
 
 sock = socket.socket()
 sock.bind(('localhost', port))
