@@ -45,6 +45,7 @@ def hunt(nodes, name):
         #Possibly mouse is already found by the other cat. Wait and try again
         if not nodes:
             time.sleep(2)
+            continue
         #pop is thread safe, so no lock needed
         target = ukkonodes.pop()
         subprocess.call(["ssh", "-o", "StrictHostKeyChecking=no", target, "python chase_cat.py S " + name])
