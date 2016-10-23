@@ -37,13 +37,14 @@ def hunt(nodes, name):
         if ((name == 'Jazzy' and jazzyFound.isSet())
             or (name == 'Catty' and cattyFound.isSet())):
             return
-        #no more nodes to search
-        if not nodes:
-            return
         #if mouse's location is known, go there instead of popping, then return
         if mouseLocation is not None:
             subprocess.call(["ssh", "-o", "StrictHostKeyChecking=no", mouseLocation, "python chase_cat.py S " + name])
             return
+        #no more nodes to search?
+        #Possibly mouse is already found by the other cat. Wait and try again
+        if not nodes:
+            time.sleep(2)
         #pop is thread safe, so no lock needed
         target = ukkonodes.pop()
         subprocess.call(["ssh", "-o", "StrictHostKeyChecking=no", target, "python chase_cat.py S " + name])
