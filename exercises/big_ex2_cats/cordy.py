@@ -47,7 +47,7 @@ def hunt(nodes, name):
         subprocess.call(["ssh", target, "python chase_cat.py S " + name])
 
 with open("ukkonodes") as f:
-    ukkonodes = f.readlines()
+    ukkonodes = f.read().splitlines()
 
 with open("listy_location") as f:
     listyhost = f.readline().rstrip()
@@ -56,6 +56,10 @@ if listyhost in ukkonodes:
     raise RuntimeError("listy host must not be in the ukkonodes list")
 
 mouseLocation = None
+
+#open, then close cmsg
+#this ensurs cmsg is empty and extant when the program is run
+open("cmsg", "w").close()
 
 #threading events for Jazzy and Catty having found the mouse
 jazzyFound = threading.Event()
