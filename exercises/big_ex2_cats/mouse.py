@@ -10,9 +10,7 @@ sock.bind(('localhost', port))
 sock.listen(5)
 
 while True:
-    print "ready"
     (replysock, replyto) = sock.accept()
-    print "accepted"
     reply = replysock.makefile()
     #message format:
     msg = reply.readline().rstrip()
@@ -22,5 +20,3 @@ while True:
         reply.write("OUCH\n")
         reply.flush()
         break
-
-
