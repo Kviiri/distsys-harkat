@@ -70,7 +70,7 @@ threading.Thread(target = subprocess.call,
         args = (["ssh", listyhost, "python listy.py"]))
 
 #start the logwatch
-threading.Thread(target = logwatch, args = ("cmsg")).start()
+threading.Thread(target = logwatch, args = ("cmsg", 0.2)).start()
 #start the chase cats
 threading.Thread(target = hunt, args = (ukkonodes, 'Jazzy')).start()
 threading.Thread(target = hunt, args = (ukkonodes, 'Catty')).start()
