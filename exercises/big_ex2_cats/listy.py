@@ -28,4 +28,4 @@ with open("cmsg", "a") as log:
         #traffic is bounded to three messages total anyway
         #threading.Thread(target = receive, args = (catSock, log)).start()
         if receive(catSock, log):
-            return
+            break
