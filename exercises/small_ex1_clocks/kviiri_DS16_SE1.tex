@@ -1,0 +1,139 @@
+\documentclass[12pt,a4paper,titlepage]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{setspace}
+\usepackage{parskip}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage[top=1in, bottom=1in, left=1in, right=1in]{geometry}
+\usepackage{float}
+\usepackage[section]{placeins}
+
+\usepackage{hyperref} % lisääthän omat pakettisi ENNEN hyperref'iä
+\hypersetup{pdfborder={0 0 0}}
+\onehalfspacing
+
+%%%%% kaikki ennen tätä liittyy käytettäviin paketteihin tai dokumentin muotoiluun. siihen ei tarvinne aluksi koskea. %%%%%
+
+%%%%% kansilehti %%%%%
+\title{Distsys Small Exercise 1 \\ Clocks \vspace{0.5em}}
+\author{Kalle V.M. Viiri}
+\date{\today}
+\begin{document}
+
+\setcounter{page}{1}
+\parskip=1em \advance\parskip by 0pt plus 2pt
+
+\maketitle
+
+\section{Lamport clocks}
+
+Simulate the Lamport clock algorithm for three processes A,  B, and C. Present each process's local clocks given the following order of events:
+
+A snd B;\\
+B ticks 6;\\
+A ticks 3;\\
+B rcv A;\\
+B snd C;\\
+C ticks 4;\\
+C rcv B;\\
+C snd A;\\
+A ticks 16;\\
+A rcv C;\\
+C ticks 1;\\
+
+\subsection{Solution}
+
+The values of each clock after each event are in the following table:\\
+
+\begin{tabular}{ | l | c | c | c |} \hline
+\textbf{Event} & \textbf{A} & \textbf{B} & \textbf{C} \\ \hline
+Initial & 19 & 40 & 28 \\ \hline
+A snd B & 20 & 40 & 28 \\ \hline
+B ticks 6 & 20 & 46 & 28 \\ \hline
+B rcv A & 20 & 47 & 28 \\ \hline
+B snd C & 20 & 48 & 28 \\ \hline
+C ticks 4 & 20 & 48 & 32 \\ \hline
+C rcv B & 20 & 48 & 49 \\ \hline
+C snd A & 20 & 48 & 50 \\ \hline
+A ticks 16 & 36 & 48 & 50 \\ \hline
+A rcv C & 51 & 48 & 50 \\ \hline
+C ticks 1 & 51 & 48 & 51\\ \hline
+\end{tabular}
+
+The final values for the three clocks are A = 51, B = 48, C = 51.
+
+\section{More Lamport clocks}
+
+Prove the following two properties for Lamport's cloks:\\
+\begin{enumerate}
+\item If $e \to e'$, then $L(e) < L(e')$\\
+\item $L(e) < L(e')$ does not necessarily imply $e \to e'$
+\end{enumerate}
+
+\subsection{Solution}
+
+Any possible sequence of events between $e$ and $e'$ is composed of local events within the same process, or send and receive events. Local events always increment the local clock, so therefore clearly preserve the clock condition. Send and receive events also preserve the clock condition: a message is always sent before it is received, and the receiving process always sets its clock one greater than the received value. Therefore, if $e \to e'$, it also must be true that $L(e) < L(e')$.
+
+The second claim can be proven by counterexample: suppose $e$ and $e'$ occur on two distinct processes that never communicate with each other. Then $e$ and $e'$ are concurrent, but may have differing clock values.
+
+\section{Vector clocks}
+
+Assume that when P2's clock was $(4, 5, 1)$ it received a message from P1. The timestamp of the message was $(8, 3, 2)$. Given that knowledge, answer the following questions:
+
+\begin{enumerate}
+\item What can we tell about the overall system?
+\item What did P2 learn about the history of its colleagues?
+\item Show that the relation $V_j[i] \leq V_i[i]$ always holds.
+\item Show that $e \to e' \Rightarrow V(e) < V(e')$.
+\item Solve Lamport clock problem in Q1 using vector clocks.
+\end{enumerate}
+
+\subsection{Solution}
+
+\textbf{What can we tell about the overall system?} Since there are three elements in each vector, there are three processes in total.
+
+\textbf{What did P2 learn about the history of its colleagues?} That there has been previous message traffic between P3 and P1 (for $V_1[3]$ is incremented to two).
+
+\textbf{Show that the relation $V_j[i] \leq V_i[i]$ always holds.} The only way $V_j[i]$ can be increased is through receiving a greater value from another process. This means no process other can $i$ can have the greatest value for $V[i]$.
+
+\textbf{Show that $e \to e' \Rightarrow V(e) < V(e')$.} Any possible sequence of events between $e$ and $e'$ are composed of local events within the same process, or send and receive events in between. Local events always increment the local clock, so local events preserve the clock condition. Send and receive also preserve the condition: the received message always gets a greater vector than the sent vector was. Therefore for any sequence of events between $e$ and $e'$ results in $V(e) < V(e')$.
+
+\textbf{Solve Lamport clock problem in Q1 using vector clocks.} The table below shows the states of each vector after each action:
+
+\begin{tabular}{ | l | c | c | c |} \hline
+\textbf{Event} & \textbf{A} & \textbf{B} & \textbf{C} \\ \hline
+Initial & (19, 0, 0) & (0, 40, 0) & (0, 0, 28) \\ \hline
+A snd B & (20, 0, 0) & (0, 40, 0) & (0, 0, 28) \\ \hline
+B ticks 6 & (20, 0, 0) & (0, 46, 0) & (0, 0, 28) \\ \hline
+B rcv A & (20, 0, 0) & (20, 47, 0) & (0, 0, 28) \\ \hline
+B snd C & (20, 0, 0) & (20, 48, 0) & (0, 0, 28) \\ \hline
+C ticks 4 & (20, 0, 0) & (20, 48, 0) & (0, 0, 32) \\ \hline
+C rcv B & (20, 0, 0) & (20, 48, 0) & (20, 48, 33) \\ \hline
+C snd A & (20, 0, 0) & (20, 48, 0) & (20, 48, 52) \\ \hline
+A ticks 16 & (36, 0, 0) & (20, 48, 0) & (20, 48, 52) \\ \hline
+A rcv C & (37, 48, 52) & (20, 48, 0) & (20, 48, 52) \\ \hline
+C ticks 1 & (37, 48, 52) & (20, 48, 0) & (20, 48, 53) \\ \hline
+\end{tabular}
+
+The final values for the clocks are: A = (37, 48, 52), B = (20, 48, 0) and C = (20, 48, 53).
+
+\section{Clock synchronization}
+
+Consider a scenario with multiple wall clocks showing different times. Each clock is controlled by its own computer which is connected to the rest of the network as well as the Internet. How would you synchronize the individual clocks? The goal is to have them be as closely synchronized to each other as possible.
+
+In your answer, consider the merits of Cristian's algorithm, Berkeley algorithm, and NTP, and make a case for each of them why that algorithm would be the best one for this scenario. You can make additional assumptions about the operating environment, but please state them explicitly.
+
+\subsection{Solution}
+
+\textbf{Cristian's algorithm.} Cristian's algorithm requires an agreed-upon time server, so one of the clocks has to be designated as the master. To synchronize clocks, each servant clock would poll the master for the time. The master replies, and the servant clocks set their own clocks assuming that the master's timestamp occured halfway through the round trip.
+
+In reality, the master's reply could've happened at any point during the round trip. For example, if RTT (round-trip time) is ten seconds, it could be that the initial query took nine seconds to reach the master and the reply took only one second to get back to the servant. In this case, the supposed time is four seconds off the actual time of the master. The results turn out the best when the RTT is very short, since the RTT is a strict upper bound on the offset of the time after synchronization. Therefore it's a recommended solution only if network latency is reasonably low.
+
+\textbf{Berkeley algorithm.} In the Berkeley algorithm, a master is first elected (for example by using the Bully algorithm). The master first establishes the time of the other clocks by first polling their times in a similar manner to Cristian's algorithm. The master chooses the average of the time estimates as its time, and tells each other clock to shift backwards or forwards to achieve the desired time. If a backward shift is needed, the receiving clock is usually slowed down to correct instead of shifted right away, because time progressing backwards could break software relying on normal properties of time applying.
+
+Since the Berkeley algorithm picks the average time of each servant clock as the official timestamp, it sticks closer to the original times than Cristian. Any deviation from the eventual "official" time is, like in Cristian's algorithm, a result of an uneven round trip length between master polling each servant and the servants replying. As the reply is structured as difference to the timestamp received, not the resulting time, the RTT for the return trip has no effect on the clock synchronization.
+
+\textbf{NTP.} Network Time Protocol (NTP) would mean connecting the entire set of clocks to an NTP server, or preferably, a set of such servers. Each clock would query the available NTP servers for a time, and use statistical analysis to get the correct time.
+
+\end{document}
