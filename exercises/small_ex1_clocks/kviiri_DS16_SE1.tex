@@ -73,9 +73,11 @@ Prove the following two properties for Lamport's cloks:\\
 
 \subsection{Solution}
 
-Any possible sequence of events between $e$ and $e'$ is composed of local events within the same process, or send and receive events. Local events always increment the local clock, so therefore clearly preserve the clock condition. Send and receive events also preserve the clock condition: a message is always sent before it is received, and the receiving process always sets its clock one greater than the received value. Therefore, if $e \to e'$, it also must be true that $L(e) < L(e')$.
+When $e \to e'$, any possible sequence of events between $e$ and $e'$ is composed of local events within the same process, or send and receive events between different processes. Local events always increment the local clock, so therefore clearly preserve the clock condition. Send and receive events also preserve the clock condition: a message is always sent before it is received, and the receiving process always sets its clock one greater than the received value. Therefore, if $e \to e'$, it also must be true that $L(e) < L(e')$.
 
-The second claim can be proven by counterexample: suppose $e$ and $e'$ occur on two distinct processes that never communicate with each other. Then $e$ and $e'$ are concurrent, but may have differing clock values.
+The second claim can be proven by counterexample: suppose $e$ and $e'$ occur on two distinct processes that never communicate with each other (or a common intermediary process). Then $e$ and $e'$ are concurrent, but may have any clock values without regard to the other, so $L(e) < L(e')$ is possible even if $e \nrightarrow e'$.
+
+A slightly less trivial counterexample from the first exercise is events 7 and 8 (C snd A and A ticks 16, respectively). These events have no causal relationship to each other, and while event 8 has a lower timestamp (36 versus 50) that doesn't guarantee it happening before C sent a message to A.
 
 \section{Vector clocks}
 
@@ -93,11 +95,11 @@ Assume that when P2's clock was $(4, 5, 1)$ it received a message from P1. The t
 
 \textbf{What can we tell about the overall system?} Since there are three elements in each vector, there are three processes in total.
 
-\textbf{What did P2 learn about the history of its colleagues?} That there has been previous message traffic between P3 and P1 (for $V_1[3]$ is incremented to two).
+\textbf{What did P2 learn about the history of its colleagues?} That there has been previous message traffic from P3 to P1 (for $V_1[3]$ is incremented to two).
 
-\textbf{Show that the relation $V_j[i] \leq V_i[i]$ always holds.} The only way $V_j[i]$ can be increased is through receiving a greater value from another process. This means no process other can $i$ can have the greatest value for $V[i]$.
+\textbf{Show that the relation $V_j[i] \leq V_i[i]$ always holds.} The only way $V_j[i]$ can be increased is through receiving a greater value from another process, as only process $i$ can increment it directly. This means no process other than $i$ can have the greatest value for $V[i]$.
 
-\textbf{Show that $e \to e' \Rightarrow V(e) < V(e')$.} Any possible sequence of events between $e$ and $e'$ are composed of local events within the same process, or send and receive events in between. Local events always increment the local clock, so local events preserve the clock condition. Send and receive also preserve the condition: the received message always gets a greater vector than the sent vector was. Therefore for any sequence of events between $e$ and $e'$ results in $V(e) < V(e')$.
+\textbf{Show that $e \to e' \Rightarrow V(e) < V(e')$.} By the definition of $e$ happening before $e'$, there has to be a sequence of events between $e$ and $e'$ composed of local events within the same process, or send and receive events in between. Local events always increment the local clock, so local events preserve the clock condition. Send and receive also preserve the condition: the received message always gets a greater vector than the sent vector was (seen above). Therefore for any sequence of events between $e$ and $e'$ results in $V(e) < V(e')$.
 
 \textbf{Solve Lamport clock problem in Q1 using vector clocks.} The table below shows the states of each vector after each action:
 
@@ -110,13 +112,13 @@ B rcv A & (20, 0, 0) & (20, 47, 0) & (0, 0, 28) \\ \hline
 B snd C & (20, 0, 0) & (20, 48, 0) & (0, 0, 28) \\ \hline
 C ticks 4 & (20, 0, 0) & (20, 48, 0) & (0, 0, 32) \\ \hline
 C rcv B & (20, 0, 0) & (20, 48, 0) & (20, 48, 33) \\ \hline
-C snd A & (20, 0, 0) & (20, 48, 0) & (20, 48, 52) \\ \hline
-A ticks 16 & (36, 0, 0) & (20, 48, 0) & (20, 48, 52) \\ \hline
-A rcv C & (37, 48, 52) & (20, 48, 0) & (20, 48, 52) \\ \hline
-C ticks 1 & (37, 48, 52) & (20, 48, 0) & (20, 48, 53) \\ \hline
+C snd A & (20, 0, 0) & (20, 48, 0) & (20, 48, 34) \\ \hline
+A ticks 16 & (36, 0, 0) & (20, 48, 0) & (20, 48, 34) \\ \hline
+A rcv C & (37, 48, 34) & (20, 48, 0) & (20, 48, 34) \\ \hline
+C ticks 1 & (37, 48, 34) & (20, 48, 0) & (20, 48, 35) \\ \hline
 \end{tabular}
 
-The final values for the clocks are: A = (37, 48, 52), B = (20, 48, 0) and C = (20, 48, 53).
+The final values for the clocks are: A = (37, 48, 34), B = (20, 48, 0) and C = (20, 48, 35).
 
 \section{Clock synchronization}
 
@@ -128,12 +130,16 @@ In your answer, consider the merits of Cristian's algorithm, Berkeley algorithm,
 
 \textbf{Cristian's algorithm.} Cristian's algorithm requires an agreed-upon time server, so one of the clocks has to be designated as the master. To synchronize clocks, each servant clock would poll the master for the time. The master replies, and the servant clocks set their own clocks assuming that the master's timestamp occured halfway through the round trip.
 
-In reality, the master's reply could've happened at any point during the round trip. For example, if RTT (round-trip time) is ten seconds, it could be that the initial query took nine seconds to reach the master and the reply took only one second to get back to the servant. In this case, the supposed time is four seconds off the actual time of the master. The results turn out the best when the RTT is very short, since the RTT is a strict upper bound on the offset of the time after synchronization. Therefore it's a recommended solution only if network latency is reasonably low.
+In reality, the master's reply could've happened at any point during the round trip. For example, if RTT (round-trip time) is ten seconds, it could be that the initial query took nine seconds to reach the master and the reply took only one second to get back to the servant. In this case, the supposed time is four seconds off the actual time of the master. The results turn out the best when the RTT is very short, since the RTT is a strict upper bound on the offset of the time after synchronization. Therefore it's a recommended solution, but only if network latency is reasonably and consistently low.
 
-\textbf{Berkeley algorithm.} In the Berkeley algorithm, a master is first elected (for example by using the Bully algorithm). The master first establishes the time of the other clocks by first polling their times in a similar manner to Cristian's algorithm. The master chooses the average of the time estimates as its time, and tells each other clock to shift backwards or forwards to achieve the desired time. If a backward shift is needed, the receiving clock is usually slowed down to correct instead of shifted right away, because time progressing backwards could break software relying on normal properties of time applying.
+\textbf{Berkeley algorithm.} In the Berkeley algorithm, a master is first elected (for example by using the Bully algorithm). The master first establishes the time of the other clocks by first polling their times in a similar manner to Cristian's algorithm. The master chooses the average of the time estimates as its time, ignoring any clear outliers, and tells each other clock to shift backwards or forwards to achieve the desired time. If a backward shift is needed, the receiving clock is usually slowed down to correct instead of shifted right away, because time progressing backwards could break software relying on normal properties of time applying.
 
-Since the Berkeley algorithm picks the average time of each servant clock as the official timestamp, it sticks closer to the original times than Cristian. Any deviation from the eventual "official" time is, like in Cristian's algorithm, a result of an uneven round trip length between master polling each servant and the servants replying. As the reply is structured as difference to the timestamp received, not the resulting time, the RTT for the return trip has no effect on the clock synchronization.
+Since the Berkeley algorithm picks the average time of each servant clock as the official timestamp, it sticks closer to the original times than Cristian. Any deviation from the eventual "official" time is, like in Cristian's algorithm, a result of an uneven round trip length between master polling each servant and the servants replying. As the reply is structured as difference to the timestamp received, not the resulting time, the RTT for actually setting the clocks has no effect on the clock synchronization.
 
-\textbf{NTP.} Network Time Protocol (NTP) would mean connecting the entire set of clocks to an NTP server, or preferably, a set of such servers. Each clock would query the available NTP servers for a time, and use statistical analysis to get the correct time.
+\textbf{NTP.} Network Time Protocol (NTP) would mean connecting the entire set of clocks to an NTP server, or preferably, a set of such servers. Each clock would query the available NTP servers for a time, and use statistical analysis to get the correct time. To use the publicly available NTP clocks (high-precision atomic clocks) the clocks need internet connection, which according to the assignment is available.
+
+One alternative is to create one's own NTP network inside the classroom where the clocks are. This would mean deciding a hierarchy between the clocks. Preferably just one clock would be on the zeroth stratum (meaning "official time"), since we can't assume these clocks to have the precision of high-end atomic clocks and thus two zeroth stratum clocks would possibly deviate from each other. The other clocks would be formed into a hierarchical tree (strata) according to the NTP protocol so each layer gets its time synchronized with the stratum "above" (closer to stratum zero) of its own.
+
+NTP treats the received timestamps more carefully than Cristian and Berkeley algorithms: instead of just round trip time, each querying node also receives "processing time" stamps indicating how long the time server took to process the time request. These are further processed statistically by the receiving node to mitigate inaccurate timestamps. This procedure refines NTP's results to be much more accurate than Cristian and Berkeley algorithms, which is why I would prefer NTP in the described scenario.
 
 \end{document}
