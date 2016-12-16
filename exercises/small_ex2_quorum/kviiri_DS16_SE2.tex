@@ -1,0 +1,146 @@
+\documentclass[12pt,a4paper,titlepage]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{setspace}
+\usepackage{parskip}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage[top=1in, bottom=1in, left=1in, right=1in]{geometry}
+\usepackage{float}
+\usepackage[section]{placeins}
+
+\usepackage{hyperref} % lisääthän omat pakettisi ENNEN hyperref'iä
+\hypersetup{pdfborder={0 0 0}}
+\onehalfspacing
+
+%%%%% kaikki ennen tätä liittyy käytettäviin paketteihin tai dokumentin muotoiluun. siihen ei tarvinne aluksi koskea. %%%%%
+
+%%%%% kansilehti %%%%%
+\title{Distsys Small Exercise 1 \\ Clocks \vspace{0.5em}}
+\author{Kalle V.M. Viiri}
+\date{\today}
+\begin{document}
+
+\setcounter{page}{1}
+\parskip=1em \advance\parskip by 0pt plus 2pt
+
+\maketitle
+
+\section{Byzantine generals}
+
+a) Explain the problem of the Byzantine generals, and the algorithm proposed to solve their communication problem.
+
+b) Give an example of an equivalent (i.e. similarly solvable) distributed system problem. (Preferably one that does not involve war.)
+
+c) Explain what kind of problem quorum-based protocols are designed to solve.
+
+d) What do these two topics have in common? What are their most relevant differences?
+
+\subsection{Solution}
+
+a) A group of Byzantine generals is laying siege to a hostile town, and communicate with each other via direct messages from camp to camp. They are trying to reach consensus on whether to assault the town or retreat. Presumably it would be a disastrous failure if some generals decide to assault the town without the support of their comrades, so it is very important for them to reach a consensus either way.
+
+The challenging part is that the generals have one or more traitors amongst them. The traitors will attempt to confuse the other generals in all ways possible - in other words, they will behave in an arbitrarily faulty manner. Variations of the problem also introduce extra challenges like unreliable or arbitrarily slow communication channels between the generals, or replace the simple "fight or flight" consensus problem with a more complex one.
+
+In distributed computing, the "generals" are represented by computing nodes, and the traitors are nodes that are faulty or subverted. The consensus question can be anything, not just pertaining to military actions. The main challenge of devising a system that works regardless of interference by subverted nodes whenever possible remains the same.
+
+The algorithm proposed to achieve reliable consensus in presence of faulty nodes works as follows: the generals first communicate their vote to each other. Then they communicate the votes they received from each general as a vector to all other generals, so the other nodes can see if there is a traitor trying to fool them by sending different votes to different generals.
+
+For example, let there are five generals. Generals 1 and 2 favor attacking, generals 3 and 4 favor retreating and general 5 is a traitor. If all generals assume honesty, general 5 could send "retreat" votes to 1 and 2, causing them to think "retreat" won the vote three votes against two, and "attack" votes to 3 and 4, causing them to believe attacking won the vote, and get their soldiers butchered.
+
+With our algorithm, the generals instead exchange the votes they received before considering it a consensus. For example, general 1 would send each general the vector $(A, R, R, R)$ representing votes from generals 2, 3, 4 and 5, respectively, with $A$ representing "attack" vote and $R$ "retreat". General 5 must send a vector too - if it chooses not to, its treachery is outed by its unwillingness to adhere to the protocol. Upon comparing the vectors they received from the other generals, generals 1 to 4 can conclude that general 5's votes didn't match for everyone, and exclude them from further communications.
+
+This approach only works because general 5 is a suitably small minority - if they attempt to spread different stories to different nodes, there are multiple nodes to testify against it. For sufficiently high concentrations of treacherous generals, it can be impossible to tell apart who is lying - only that someone is.
+
+
+b) The blockchain of Bitcoin features a similar problem along with its solution: a person with malicious intents could attempt to double-spend their bitcoins. Hence each Bitcoin transaction has to be verified by the network of Bitcoin users, who check that the sender hasn't sent the bitcoins to different recipients before approving of the transaction. As long as the vast majority of users are acting honestly, any attempts to introduce arbitrary failures will be detected and thwarted.
+
+
+c) Quorum-based systems are meant for solving consensus problems. They are particularly useful in systems where communications are unreliable, and reaching all the other nodes (or any particular node) to check for consensus would be likely to fail. By having a minimum amount of votes needed to establish a consensus, quorums circumvent the problem by allowing consensus to happen even if some nodes cannot be accessed.
+
+
+d) Quorums and Byzantine failures are both about fault-tolerance - coming up with the desired results despite the realities of working with distributed systems. Both systems include voting-like behavior, and lack centralized control (no designated master). The main difference between the two is the type of the faults being accounted for - while Byzantine failure protocols deal with the possibility of faulty nodes trying to subvert the protocol, quorum methods address problems with communications such as network partitioning.
+
+
+\section{Two-phase commit}
+
+Describe the behaviour of the two-phase commit protocol in cases where
+
+the coordinator suffers a (temporary) crash,
+the participant suffers a (temporary) crash.
+For what purposes are the different states needed?
+Is the ACKNOWLEDGMENT message (see Wikipedia) necessary?
+
+
+Assume a reliable data communication network (e.g., LAN). Would it be possible to simplify the protocol in this case?
+Assume that the nodes are reliable but the data communication is unreliable. Would it be possible to simplify the protocol in this case?
+A distributed agreement should not be possible in a case like this.However, it seems to work. Why? Or does it work?
+
+\subsection{Solution}
+
+There are several ways for 2PC implementations to handle coordinator crashing.
+
+\section{Vector clocks}
+
+Assume that when P2's clock was $(4, 5, 1)$ it received a message from P1. The timestamp of the message was $(8, 3, 2)$. Given that knowledge, answer the following questions:
+
+\begin{enumerate}
+\item What can we tell about the overall system?
+\item What did P2 learn about the history of its colleagues?
+\item Show that the relation $V_j[i] \leq V_i[i]$ always holds.
+\item Show that $e \to e' \Rightarrow V(e) < V(e')$.
+\item Solve Lamport clock problem in Q1 using vector clocks.
+\end{enumerate}
+
+\subsection{Solution}
+
+\textbf{What can we tell about the overall system?} Since there are three elements in each vector, there are three processes in total.
+
+\textbf{What did P2 learn about the history of its colleagues?} That there has been previous message traffic from P3 to P1 (for $V_1[3]$ is incremented to two).
+
+\textbf{Show that the relation $V_j[i] \leq V_i[i]$ always holds.} The only way $V_j[i]$ can be increased is through receiving a greater value from another process, as only process $i$ can increment it directly. This means no process other than $i$ can have the greatest value for $V[i]$.
+
+\textbf{Show that $e \to e' \Rightarrow V(e) < V(e')$.} By the definition of $e$ happening before $e'$, there has to be a sequence of events between $e$ and $e'$ composed of local events within the same process, or send and receive events in between. Local events always increment the local clock, so local events preserve the clock condition. Send and receive also preserve the condition: the received message always gets a greater vector than the sent vector was (seen above). Therefore for any sequence of events between $e$ and $e'$ results in $V(e) < V(e')$.
+
+\textbf{Solve Lamport clock problem in Q1 using vector clocks.} The table below shows the states of each vector after each action:
+
+\begin{tabular}{ | l | c | c | c |} \hline
+\textbf{Event} & \textbf{A} & \textbf{B} & \textbf{C} \\ \hline
+Initial & (19, 0, 0) & (0, 40, 0) & (0, 0, 28) \\ \hline
+A snd B & (20, 0, 0) & (0, 40, 0) & (0, 0, 28) \\ \hline
+B ticks 6 & (20, 0, 0) & (0, 46, 0) & (0, 0, 28) \\ \hline
+B rcv A & (20, 0, 0) & (20, 47, 0) & (0, 0, 28) \\ \hline
+B snd C & (20, 0, 0) & (20, 48, 0) & (0, 0, 28) \\ \hline
+C ticks 4 & (20, 0, 0) & (20, 48, 0) & (0, 0, 32) \\ \hline
+C rcv B & (20, 0, 0) & (20, 48, 0) & (20, 48, 33) \\ \hline
+C snd A & (20, 0, 0) & (20, 48, 0) & (20, 48, 34) \\ \hline
+A ticks 16 & (36, 0, 0) & (20, 48, 0) & (20, 48, 34) \\ \hline
+A rcv C & (37, 48, 34) & (20, 48, 0) & (20, 48, 34) \\ \hline
+C ticks 1 & (37, 48, 34) & (20, 48, 0) & (20, 48, 35) \\ \hline
+\end{tabular}
+
+The final values for the clocks are: A = (37, 48, 34), B = (20, 48, 0) and C = (20, 48, 35).
+
+\section{Clock synchronization}
+
+Consider a scenario with multiple wall clocks showing different times. Each clock is controlled by its own computer which is connected to the rest of the network as well as the Internet. How would you synchronize the individual clocks? The goal is to have them be as closely synchronized to each other as possible.
+
+In your answer, consider the merits of Cristian's algorithm, Berkeley algorithm, and NTP, and make a case for each of them why that algorithm would be the best one for this scenario. You can make additional assumptions about the operating environment, but please state them explicitly.
+
+\subsection{Solution}
+
+\textbf{Cristian's algorithm.} Cristian's algorithm requires an agreed-upon time server, so one of the clocks has to be designated as the master. To synchronize clocks, each servant clock would poll the master for the time. The master replies, and the servant clocks set their own clocks assuming that the master's timestamp occured halfway through the round trip.
+
+In reality, the master's reply could've happened at any point during the round trip. For example, if RTT (round-trip time) is ten seconds, it could be that the initial query took nine seconds to reach the master and the reply took only one second to get back to the servant. In this case, the supposed time is four seconds off the actual time of the master. The results turn out the best when the RTT is very short, since the RTT is a strict upper bound on the offset of the time after synchronization. Therefore it's a recommended solution, but only if network latency is reasonably and consistently low.
+
+\textbf{Berkeley algorithm.} In the Berkeley algorithm, a master is first elected (for example by using the Bully algorithm). The master first establishes the time of the other clocks by first polling their times in a similar manner to Cristian's algorithm. The master chooses the average of the time estimates as its time, ignoring any clear outliers, and tells each other clock to shift backwards or forwards to achieve the desired time. If a backward shift is needed, the receiving clock is usually slowed down to correct instead of shifted right away, because time progressing backwards could break software relying on normal properties of time applying.
+
+Since the Berkeley algorithm picks the average time of each servant clock as the official timestamp, it sticks closer to the original times than Cristian. Any deviation from the eventual "official" time is, like in Cristian's algorithm, a result of an uneven round trip length between master polling each servant and the servants replying. As the reply is structured as difference to the timestamp received, not the resulting time, the RTT for actually setting the clocks has no effect on the clock synchronization.
+
+\textbf{NTP.} Network Time Protocol (NTP) would mean connecting the entire set of clocks to an NTP server, or preferably, a set of such servers. Each clock would query the available NTP servers for a time, and use statistical analysis to get the correct time. To use the publicly available NTP clocks (high-precision atomic clocks) the clocks need internet connection, which according to the assignment is available.
+
+One alternative is to create one's own NTP network inside the classroom where the clocks are. This would mean deciding a hierarchy between the clocks. Preferably just one clock would be on the zeroth stratum (meaning "official time"), since we can't assume these clocks to have the precision of high-end atomic clocks and thus two zeroth stratum clocks would possibly deviate from each other. The other clocks would be formed into a hierarchical tree (strata) according to the NTP protocol so each layer gets its time synchronized with the stratum "above" (closer to stratum zero) of its own.
+
+NTP treats the received timestamps more carefully than Cristian and Berkeley algorithms: instead of just round trip time, each querying node also receives "processing time" stamps indicating how long the time server took to process the time request. These are further processed statistically by the receiving node to mitigate inaccurate timestamps. This procedure refines NTP's results to be much more accurate than Cristian and Berkeley algorithms, which is why I would prefer NTP in the described scenario.
+
+\end{document}
